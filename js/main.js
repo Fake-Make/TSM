@@ -136,17 +136,17 @@ function slicePerYear(sourceArray) {
 
 {	// Trend plot
 	var trendPlot = document.getElementById('model-trend');
-	var trendData = slicePerYear(CARROT_UFO);
-	trendData.push({
-			x: CARROT_UFO_X,
-			y: CARROT_UFO_X.map(t => 6e-4 * Math.pow(t, 2) - 0.1107 * t + 33.617),
-			name: 'Тренд',
-			mode: 'lines',
-			line: {
-				color: '#000',
-				width: 1
-			}
-		});
+	var trendLine = {
+		x: CARROT_UFO_X,
+		y: CARROT_UFO_X.map(t => 6e-4 * Math.pow(t, 2) - 0.1107 * t + 33.617),
+		name: 'Тренд',
+		mode: 'lines',
+		line: {
+			color: '#000',
+			width: 1
+		}
+	};
+	var trendData = slicePerYear(CARROT_UFO).concat([trendLine]);
 	var trendLayout = {
 		title:'График линии тренда',
 		margin: {
@@ -155,4 +155,27 @@ function slicePerYear(sourceArray) {
 		}
 	};
 	Plotly.newPlot(trendPlot, trendData, trendLayout);
+}
+
+{	// Season plot
+	var seasonPlot = document.getElementById('model-season');
+	var seasonY = slicePerYear(CARROT_UFO).map(dataPerYear => {
+		let m = CARROT_UFO.length;
+		dataPerYear.y = dataPerYear.y
+		.map((price, t) => {
+			return (price - trendLine.y[t] - mathExpectation) / m;
+		});
+		dataPerYear.y = dataPerYear.y.map((price) => {
+			return price - dataPerYear.y.reduce((acc, cur) => acc + cur) / dataPerYear.y.length;
+		});
+		return dataPerYear;
+	});
+	var seasonLayout = {
+		title:'График сезонной компоненты',
+		margin: {
+			t: 30,
+			b: 20
+		}
+	};
+	Plotly.newPlot(seasonPlot, seasonY, seasonLayout);
 }
