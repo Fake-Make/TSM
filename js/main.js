@@ -159,17 +159,21 @@ function slicePerYear(sourceArray) {
 
 {	// Season plot
 	var seasonPlot = document.getElementById('model-season');
-	var seasonY = slicePerYear(CARROT_UFO).map(dataPerYear => {
-		let m = CARROT_UFO.length;
-		dataPerYear.y = dataPerYear.y
-		.map((price, t) => {
-			return (price - trendLine.y[t] - mathExpectation) / m;
-		});
-		dataPerYear.y = dataPerYear.y.map((price) => {
-			return price - dataPerYear.y.reduce((acc, cur) => acc + cur) / dataPerYear.y.length;
-		});
-		return dataPerYear;
-	});
+	var seasonLine = {
+		x: CARROT_UFO_X,
+		y: slicePerYear(CARROT_UFO).map(dataPerYear => {
+			let m = slicePerYear(CARROT_UFO).length;
+			dataPerYear.y = dataPerYear.y
+			.map((price, t) => {
+				return (price - trendLine.y[t] - mathExpectation) / m;
+			});
+			return dataPerYear.y.map((price) => {
+				return price - dataPerYear.y.reduce((acc, cur) => acc + cur) / dataPerYear.y.length;
+			})
+		}).reduce((acc, cur) => acc.concat(cur)),
+		name: 'Сезонная компонента'
+	}
+	
 	var seasonLayout = {
 		title:'График сезонной компоненты',
 		margin: {
@@ -177,5 +181,22 @@ function slicePerYear(sourceArray) {
 			b: 20
 		}
 	};
-	Plotly.newPlot(seasonPlot, seasonY, seasonLayout);
+	Plotly.newPlot(seasonPlot, [seasonLine], seasonLayout);
+}
+
+{	// Leftover plot
+	var leftoverPlot = document.getElementById('model-leftover');
+	var leftoverLine = {
+		x: CARROT_UFO_X,
+		y: CARROT_UFO.map((price, t) => price - trendLine.y[t] - seasonLine.y[t]),
+		name: 'Остатки'
+	}
+	var leftoverLayout = {
+		title:'График остатков',
+		margin: {
+			t: 30,
+			b: 20
+		}
+	};
+	Plotly.newPlot(leftoverPlot, [leftoverLine], leftoverLayout);
 }
