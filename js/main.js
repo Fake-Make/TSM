@@ -10,10 +10,10 @@ const quantile = -0.74;
 	var basicPlot = document.getElementById('basic');
 	var basicData = {x: CARROT_UFO_X, y: CARROT_UFO};
 	var basicLayout = {
-		title:'Исходный ряд',
+		title:'График исходного ряда',
 		margin: {
 			t: 30,
-			b: 0
+			b: 20
 		}
 	};
 	Plotly.newPlot(basicPlot, [basicData], basicLayout);
@@ -78,4 +78,28 @@ const quantile = -0.74;
 		'принимается' :
 		'отвергается'
 	);
+}
+
+{	// Auto-corellation plot
+	function autoCovariance(index) {
+		let sum = 0;
+		for (let i = 0; i < N - index; i++) {
+			sum += (CARROT_UFO[i] - mathExpectation) * (CARROT_UFO[i + index] - mathExpectation);
+		}
+		return sum / (N - index);
+	}
+
+	let constDevider = autoCovariance(0);
+	const AUTO_CORELLATION = CARROT_UFO.map((_, index) => autoCovariance(index) / constDevider);
+
+	var autoCorellationPlot = document.getElementById('auto-corellation');
+	var autoCorellationData = {x: CARROT_UFO_X, y: AUTO_CORELLATION, type: 'bar'};
+	var autoCorellationLayout = {
+		title:'График автокорреляционной функции временного ряда',
+		margin: {
+			t: 30,
+			b: 20
+		}
+	};
+	Plotly.newPlot(autoCorellationPlot, [autoCorellationData], autoCorellationLayout);
 }
