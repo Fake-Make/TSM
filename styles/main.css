@@ -1,6 +1,11 @@
+body {
+	width: 800px;
+}
+
 body,
 p {
 	font-family: 'Calibri light', Calibri, sans-serif;
+	color: #555;
 }
 
 h1,
@@ -10,4 +15,17 @@ h4,
 h5,
 h6 {
 	font-family: Calibri, 'Calibri light', sans-serif;
+	color: #333;
+}
+
+.math {
+	font-family: Consolas, 'Courier New', Courier, monospace, serif;
+	color: #63c;
+	font-weight: bold;
+	font-style: italic;
+}
+
+p {
+	width: 100%;
+	text-align: justify;
 }
