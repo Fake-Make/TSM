@@ -245,3 +245,18 @@ function slicePerYear(sourceArray) {
 	};
 	Plotly.newPlot(forecastPlot, slicePerYear(CARROT_UFO).concat([forecastLine]), forecastLayout);
 }
+
+let constDevider = autoCovariance(0);
+	const AUTO_CORELLATION = CARROT_UFO_X.map((_, index) => autoCovariance(index) / constDevider);
+$(window).resize(() => {
+	Plotly.newPlot(basicPlot, slicePerYear(CARROT_UFO), basicLayout);
+	Plotly.newPlot(autoCorellationPlot, slicePerYear(AUTO_CORELLATION).map(part => {
+		part.type = 'bar';
+		delete part.mode;
+		return part;
+	}), autoCorellationLayout);
+	Plotly.newPlot(trendPlot, trendData, trendLayout);
+	Plotly.newPlot(seasonPlot, [seasonData], seasonLayout);
+	Plotly.newPlot(leftoverPlot, [leftoverLine], leftoverLayout);
+	Plotly.newPlot(forecastPlot, slicePerYear(CARROT_UFO).concat([forecastLine]), forecastLayout);
+});
