@@ -39,7 +39,8 @@ function slicePerYear(sourceArray) {
 		title:'График исходного ряда',
 		margin: {
 			t: 30,
-			b: 20
+			b: 20,
+			l: 20
 		}
 	};
 	Plotly.newPlot(basicPlot, slicePerYear(CARROT_UFO), basicLayout);
@@ -124,7 +125,8 @@ function slicePerYear(sourceArray) {
 		title:'График автокорреляционной функции временного ряда',
 		margin: {
 			t: 30,
-			b: 20
+			b: 20,
+			l: 20
 		}
 	};
 	Plotly.newPlot(autoCorellationPlot, slicePerYear(AUTO_CORELLATION).map(part => {
@@ -152,7 +154,9 @@ function slicePerYear(sourceArray) {
 		title:'График линии тренда',
 		margin: {
 			t: 30,
-			b: 20
+			b: 20,
+			l: 20,
+			r: 0
 		}
 	};
 	Plotly.newPlot(trendPlot, trendData, trendLayout);
@@ -194,7 +198,9 @@ function slicePerYear(sourceArray) {
 		title:'График сезонной компоненты',
 		margin: {
 			t: 30,
-			b: 20
+			b: 20,
+			l: 20,
+			r: 0
 		}
 	};
 	Plotly.newPlot(seasonPlot, [seasonData], seasonLayout);
@@ -211,7 +217,9 @@ function slicePerYear(sourceArray) {
 		title:'График остатков',
 		margin: {
 			t: 30,
-			b: 20
+			b: 20,
+			l: 20,
+			r: 0
 		}
 	};
 	Plotly.newPlot(leftoverPlot, [leftoverLine], leftoverLayout);
@@ -231,7 +239,8 @@ function slicePerYear(sourceArray) {
 		title:'Прогноз на квартал вперёд',
 		margin: {
 			t: 30,
-			b: 20
+			b: 20,
+			l: 20
 		}
 	};
 	Plotly.newPlot(forecastPlot, slicePerYear(CARROT_UFO).concat([forecastLine]), forecastLayout);
