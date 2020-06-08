@@ -138,7 +138,7 @@ function slicePerYear(sourceArray) {
 	var trendPlot = document.getElementById('model-trend');
 	var trendLine = {
 		x: CARROT_UFO_X,
-		y: CARROT_UFO_X.map(t => 6e-4 * Math.pow(t, 2) - 0.1107 * t + 33.617),
+		y: CARROT_UFO_X.map(t => 6e-4 * Math.pow(t + 1, 2) - 0.1107 * (t + 1) + 33.617),
 		name: 'Тренд',
 		mode: 'lines',
 		line: {
@@ -159,18 +159,33 @@ function slicePerYear(sourceArray) {
 
 {	// Season plot
 	var seasonPlot = document.getElementById('model-season');
-	var seasonLine = {
+	{	// Get season line (really hard)
+		// Get correction of trend
+		var seasonLine = CARROT_UFO.map((val, t) => val - trendLine.y[t]);
+		// Get average per week
+		var period = slicePerYear(seasonLine);
+		var seasons = period[0].y.length;
+		var periods = period.length;
+		let i = 0;
+		// Notice last period with just a few seasons
+		for (; i < period[periods - 1].y.length; i++) {
+			seasonLine[i] = period.reduce((acc, cur) => acc + cur.y[i], 0) / periods;
+		}
+		for (; i < seasons; i++) {
+			seasonLine[i] = period.reduce((acc, cur) => acc + (cur.y[i] || 0), 0) / (periods - 1);
+		}
+		// Get shift from zero-sum
+		let shift = seasonLine.slice(0, seasons + 1).reduce((acc, cur) => acc + cur) / seasons;
+		for (i = 0; i < seasons; seasonLine[i++] -= shift);
+		// Repeat for left of seasons around whole periods
+		for (; i < seasonLine.length; i++) {
+			seasonLine[i] = seasonLine[i - seasons] - shift;
+		}
+	}
+
+	var seasonData = {
 		x: CARROT_UFO_X,
-		y: slicePerYear(CARROT_UFO).map(dataPerYear => {
-			let m = slicePerYear(CARROT_UFO).length;
-			dataPerYear.y = dataPerYear.y
-			.map((price, t) => {
-				return (price - trendLine.y[t] - mathExpectation) / m;
-			});
-			return dataPerYear.y.map((price) => {
-				return price - dataPerYear.y.reduce((acc, cur) => acc + cur) / dataPerYear.y.length;
-			})
-		}).reduce((acc, cur) => acc.concat(cur)),
+		y: seasonLine,
 		name: 'Сезонная компонента'
 	}
 	
@@ -181,9 +196,10 @@ function slicePerYear(sourceArray) {
 			b: 20
 		}
 	};
-	Plotly.newPlot(seasonPlot, [seasonLine], seasonLayout);
+	Plotly.newPlot(seasonPlot, [seasonData], seasonLayout);
 }
 
+/*
 {	// Leftover plot
 	var leftoverPlot = document.getElementById('model-leftover');
 	var leftoverLine = {
@@ -199,4 +215,4 @@ function slicePerYear(sourceArray) {
 		}
 	};
 	Plotly.newPlot(leftoverPlot, [leftoverLine], leftoverLayout);
-}
+}*/
