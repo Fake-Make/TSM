@@ -199,12 +199,11 @@ function slicePerYear(sourceArray) {
 	Plotly.newPlot(seasonPlot, [seasonData], seasonLayout);
 }
 
-/*
 {	// Leftover plot
 	var leftoverPlot = document.getElementById('model-leftover');
 	var leftoverLine = {
 		x: CARROT_UFO_X,
-		y: CARROT_UFO.map((price, t) => price - trendLine.y[t] - seasonLine.y[t]),
+		y: CARROT_UFO.map((price, t) => price - trendLine.y[t] - seasonLine[t]),
 		name: 'Остатки'
 	}
 	var leftoverLayout = {
@@ -215,4 +214,21 @@ function slicePerYear(sourceArray) {
 		}
 	};
 	Plotly.newPlot(leftoverPlot, [leftoverLine], leftoverLayout);
-}*/
+}
+
+{	// Forecast plot
+	var forecastPlot = document.getElementById('forecast-plot');
+	var forecastLine = {
+		x: CARROT_UFO_X,
+		y: CARROT_UFO.map((price, t) => price - trendLine.y[t] - seasonLine[t]),
+		name: 'Остатки'
+	}
+	var forecastLayout = {
+		title:'Прогноз на квартал вперёд',
+		margin: {
+			t: 30,
+			b: 20
+		}
+	};
+	Plotly.newPlot(forecastPlot, [forecastLine], forecastLayout);
+}
