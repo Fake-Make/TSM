@@ -136,9 +136,10 @@ function slicePerYear(sourceArray) {
 
 {	// Trend plot
 	var trendPlot = document.getElementById('model-trend');
+	var trendFunction = t => 6e-4 * Math.pow(t + 1, 2) - 0.1107 * (t + 1) + 33.617;
 	var trendLine = {
 		x: CARROT_UFO_X,
-		y: CARROT_UFO_X.map(t => 6e-4 * Math.pow(t + 1, 2) - 0.1107 * (t + 1) + 33.617),
+		y: CARROT_UFO_X.map(t => trendFunction(t)),
 		name: 'Тренд',
 		mode: 'lines',
 		line: {
@@ -203,7 +204,7 @@ function slicePerYear(sourceArray) {
 	var leftoverPlot = document.getElementById('model-leftover');
 	var leftoverLine = {
 		x: CARROT_UFO_X,
-		y: CARROT_UFO.map((price, t) => price - trendLine.y[t] - seasonLine[t]),
+		y: CARROT_UFO.map((price, t) => price - trendFunction(t) - seasonLine[t]),
 		name: 'Остатки'
 	}
 	var leftoverLayout = {
@@ -218,10 +219,13 @@ function slicePerYear(sourceArray) {
 
 {	// Forecast plot
 	var forecastPlot = document.getElementById('forecast-plot');
+
+	const quarter = 3 * 4;
+	var forecast_x = Array.from(Array(N + quarter).keys());
 	var forecastLine = {
-		x: CARROT_UFO_X,
-		y: CARROT_UFO.map((price, t) => price - trendLine.y[t] - seasonLine[t]),
-		name: 'Остатки'
+		x: forecast_x,
+		y: forecast_x.map((_, t) => trendFunction(t) + seasonLine[t % seasons]),
+		name: 'Прогноз'
 	}
 	var forecastLayout = {
 		title:'Прогноз на квартал вперёд',
@@ -230,5 +234,5 @@ function slicePerYear(sourceArray) {
 			b: 20
 		}
 	};
-	Plotly.newPlot(forecastPlot, [forecastLine], forecastLayout);
+	Plotly.newPlot(forecastPlot, slicePerYear(CARROT_UFO).concat([forecastLine]), forecastLayout);
 }
