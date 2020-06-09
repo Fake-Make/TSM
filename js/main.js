@@ -184,7 +184,7 @@ function slicePerYear(sourceArray) {
 		for (i = 0; i < seasons; seasonLine[i++] -= shift);
 		// Repeat for left of seasons around whole periods
 		for (; i < seasonLine.length; i++) {
-			seasonLine[i] = seasonLine[i - seasons] - shift;
+			seasonLine[i] = seasonLine[i % seasons];
 		}
 	}
 
