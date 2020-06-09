@@ -2,7 +2,7 @@ const DATA = [34.26, 34.91, 35.38, 36.25, 36.42, 36.54, 37.02, 37.15, 37.15, 37.
 const N = DATA.length;
 const DATA_X = Array.from(Array(N).keys());
 const DATA_SORTED = DATA.slice(0).sort();
-const mathExpectation = DATA.reduce((acc, curr) => acc + curr) / N;
+const mathExpectation = data => data.reduce((acc, curr) => acc + curr) / N;
 const dispersion = DATA.reduce((acc, curr) => acc + Math.pow((curr - mathExpectation), 2)) / (N - 1);
 const quantile = -0.74;
 
@@ -35,15 +35,14 @@ function slicePerYear(sourceArray) {
 
 {	// Auto-corellation, trend, season, leftover
 	var trendFunction = t => 6e-4 * Math.pow(t + 1, 2) - 0.1107 * (t + 1) + 33.617;
-	var autoCovariance = index => {
+	var autoCovariance = (data, index) => {
 		let sum = 0;
-		for (let i = 0; i < N - index; i++) {
-			sum += (DATA[i] - mathExpectation) * (DATA[i + index] - mathExpectation);
+		for (let i = 0; i < data.length - index; i++) {
+			sum += (data[i] - mathExpectation(data)) * (data[i + index] - mathExpectation(data));
 		}
-		return sum / (N - index);
+		return sum / (data.length - index);
 	}
-	const constDevider = autoCovariance(0);
-	var autoCorellation = t => autoCovariance(index) / constDevider;
+	var autoCorellation = (data, t) => autoCovariance(data, t) / autoCovariance(data, 0);
 
 	{	// Season
 		// Get correction of trend
@@ -73,14 +72,15 @@ function slicePerYear(sourceArray) {
 var drawPlot = (name, data) => {
 	var plot = document.getElementById('plot-' + name);
 	var layout = {
-		title: name + 'plot',
+		title: 'Plot of ' +  name,
 		margin: {
 			t: 30,
 			b: 20,
-			l: 20
+			l: 25
 		}
 	};
 	Plotly.newPlot(plot, data, layout);
 }
 
 drawPlot('leftover', [{x: DATA_X, y: leftover}]);
+drawPlot('autocorellation', [{x: DATA_X.slice(0, DATA_X.length / 3), y: leftover.map((_, t) => autoCorellation(leftover.slice(0, leftover.length / 3), t)), type: 'bar'}]);
