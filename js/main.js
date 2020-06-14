@@ -5,6 +5,20 @@ const DATA_SORTED = DATA.slice(0).sort();
 const mathExpectation = data => data.reduce((acc, curr) => acc + curr) / N;
 const dispersion = DATA.reduce((acc, curr) => acc + Math.pow((curr - mathExpectation), 2)) / (N - 1);
 const quantile = -0.74;
+const chiSquaredAt095 = [0.00393, 0.103, 0.352, 0.711, 1.145, 1.635, 2.167, 2.733, 3.325, 3.940];
+
+var drawPlot = (name, data) => {
+	var plot = document.getElementById('plot-' + name);
+	var layout = {
+		title: 'Plot of ' +  name,
+		margin: {
+			t: 30,
+			b: 20,
+			l: 25
+		}
+	};
+	Plotly.newPlot(plot, data, layout);
+}
 
 function slicePerYear(sourceArray) {
 	const firstYear = 2011;
@@ -69,18 +83,70 @@ function slicePerYear(sourceArray) {
 	var leftover = DATA.map((price, t) => price - trendFunction(t) - seasonFunction(t));
 }
 
-var drawPlot = (name, data) => {
-	var plot = document.getElementById('plot-' + name);
-	var layout = {
-		title: 'Plot of ' +  name,
-		margin: {
-			t: 30,
-			b: 20,
-			l: 25
-		}
+function statisticsBoxPierce(p, leftovers) {
+	let r = (j, e) => {
+		let N = e.length;
+		let numerator = 0;
+		let denomenator = 1;
+
+		for (let t = j + 1; t < N; t++)
+			numerator += e[t] * e[t - j];
+		for (let t = 1; t < N; t++)
+			denomenator += Math.pow(e[t], 2);
+
+		return numerator / denomenator;
 	};
-	Plotly.newPlot(plot, data, layout);
+
+	let sum = 0;
+	for (let j = 0; j < p; j++) {
+		let rRes = r(j, leftovers);
+
+		sum += Math.pow(rRes, 2);
+	}
+
+	return N * sum;
+}
+
+particialAutoCorrelation1 = (e) => {
+	let arr = [];
+	for (let i = 1; i < e.length; i++) {
+		let rPrevSquared = Math.pow(autoCorellation(e, i - 1), 2);
+		arr[i - 1] = autoCorellation(e, i) - rPrevSquared;
+		arr[i - 1] /= 1 - rPrevSquared;
+	}
+	return arr;
+}
+
+{	// AR(1) model, DF condition
+	var teta = optimjs.minimize_Powell(v => leftover.reduce((acc, cur, t) => t ? acc + Math.pow(v[0] * leftover[t - 1] - cur, 2) : cur), [.8]).argument[0];;
+	var newLeftover = leftover.map((item, t) => t ? leftover[t - 1] * teta : item);
+	$('.teta').html(teta.toFixed(3));
+
+	let statisticsStudent = leftover[0] / Math.sqrt(leftover.reduce((acc, cur) => acc + Math.pow(cur, 2)) / leftover.length);
+	let stat = (teta - 1) / statisticsStudent;
+	let crit = -2.58;
+
+	var dfAccept = stat < crit;
+	let str = `t = ${stat.toFixed(4)} ${dfAccept ? '<' : '>'} DF<sub>α</sub>(α, N) = ${crit}`;
+	$('.df-condition').html(str);
+	$('.df-accept').html(dfAccept ? 'принимается' : 'отвергается');
+	$('.df-station').html(dfAccept ? 'стационарен' : 'не стационарен');
+}
+
+if (!dfAccept) {
+	let k, accept = true, str = '<p>Далее необходимо перейти к поиску порядка интегрирования ряда остатков. Для этого воспользумеся критерием Бокса-Пирса для гипотезы об отсутствии автокорелляции до порядка <span class="math">p</span>.</p><p>Для проверки этой гипотезы используется статистика Бокса-Пирса, имеющая вид: <span class="math">Q = N * sum of (r<sup>2</sup>(j)) from j = 1 to p</span>. Гипотеза отвергается, если <span class="math">Q > χ<sup>2</sup><sub>кр</sub>(1 - α, p)</span>.</p>';
+	for(k = 0; k < 5 && accept; k++) {
+		let stat = statisticsBoxPierce(k, leftover);
+		let crit = chiSquaredAt095[k];
+	
+		accept = stat < crit;
+		let acceptText = accept ? 'принимается' : 'отвергается';
+		str += `<p>Статистика Бокса-Пирса для <span class="math">k = ${k + 1}: ${stat.toFixed(4)}</span>. Критическое значение <span class="math">χ<sup>2</sup>(0.95, ${k + 1}) = ${crit}</span>.`;
+		str += ` Гипотеза об отсутствии автокорреляции до порядка p = <span class="math">${k + 1} ${acceptText}</span>.</p>`;
+	}
+	str += `<p>Соответсвенно, порядок интегрирования <span class="math">k = ${k - 1}</span>.</p>`;
+	$('.df-inspection').after(str);
 }
 
 drawPlot('leftover', [{x: DATA_X, y: leftover}]);
-drawPlot('autocorellation', [{x: DATA_X.slice(0, DATA_X.length / 3), y: leftover.map((_, t) => autoCorellation(leftover.slice(0, leftover.length / 3), t)), type: 'bar'}]);
+drawPlot('ar_model', [{x: DATA_X, y: leftover}, {x: DATA_X, y: newLeftover}]);

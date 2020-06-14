@@ -33,17 +33,10 @@
 					</li>
 					<li>
 						<h3>2. Анализ стационарности временного ряда остатков</h3>
-						<p>Графики автокорреляционной функции и частной автокорреляционной функции имеют вид:</p>
-						<div class="plot" id="plot-autocorellation"></div>
-						<div class="plot" id="plot-autocorellation-partial"></div>
-						<p>По данным графикам можно предположить о существенной зависимости текущего значения ряда остатков от предыдущего значения этого же ряда и небольшой зависимости от второго значения. Данный ряд является нестационарным. Проверим это с помощью критерия Дики-Фуллера:</p>
-						<p>Значение статистики <span class="math">t = 2.9249</span>. Критическое значение <span class="math">DFкр(0,01; 260) = -3,4565, p-value: 0.0425. Р-value > 0.01</span>, следовательно, ряд нестационарен. Перейдем к первым разностям: <span class="math">∇e(t) = e(t) - e(t - 1)</span>.</p>
-						<p>Графики первой разности, автокорреляционной функции и частной автокорреляционной функции имеют вид:</p>
-						<div class="plot" id="plot-first-difference"></div>
-						<div class="plot" id="plot-autocorellation-2"></div>
-						<div class="plot" id="plot-autocorellation-2"></div>
-						<p>Вновь проверим гипотезу о стационарности: <span class="math">t = -5.7897, DFкр(0,01; 260) = -3,4565, p-value: 0.0. Р-value < 0.01</span>, следовательно, ряд первых разностей стационарен. Таким образом, порядок интегрирования <span class="math">k = 1</span>.</p>
-						<p class="math">∇e(t) = α<sub>1</sub> * ∇e(t - 1) + α<sub>2</sub> * ∇e(t - 2) + ⋯ + α<sub>p</sub> * ∇e(t - p) + u(t) + β<sub>1</sub> * u(t - 1) + β<sub>2</sub> u(t - 2) + ⋯ + β<sub>q</sub> * u(t - q).</p>
+						<p>Для анализа ряда остатков на стационарность в первую очередь построим модель авторегрессии AR(1): <span class="math">e(t) = θ<sub>1</sub> * e(t - 1) + u(t)</span>, где <span class="math">θ<sub>1</sub> = <span class="teta"></span></span>:</p>
+						<div id="plot-ar_model" class="plot"></div>
+						<p>Далее проверим гипотезу о стационарности с помощью критерия Дики-Фуллера. Если статистика <span class="math">t = (θ<sup>^</sup><sub>1</sub> - 1) / S<sub>θ<sup>^</sup><sub>1</sub></sub> < DF<sub>α</sub>(α, N)</span>, то гипотеза отвергается, что значит, что ряд - стационарен.</p>
+						<p class="df-inspection">Для данного ряда условие выглядит следующим образом: <span class="math df-condition"></span>. Гипотеза <strong class="df-accept"></strong>, ряд - <strong class="df-station"></strong>.</p>
 					</li>
 					<li>
 						<h3>3. Построение ARMA-модели</h3>
@@ -88,6 +81,7 @@
 	</main>
 
 	<footer>
+		<script src="https://unpkg.com/optimization-js@latest/dist/optimization.js"></script>
 		<script src="core/plotly.min.js"></script>
 		<script src="core/jquery.min.js"></script>
 		<script src="js/main.js"></script>
