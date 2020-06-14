@@ -13,6 +13,6 @@ df = pd.read_csv('data.csv')
 #             print(p, q, ':', model_fit.bic)
 
 # ARIMA(2, 1, 0) is the best
-model = ARIMA(df.value, order=(2, 1, 0))
+model = ARIMA(df.value, order=(1, 1, 0))
 model_fit = model.fit(disp = 0)
 print(model_fit.summary())
