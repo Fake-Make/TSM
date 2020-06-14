@@ -147,6 +147,16 @@ if (!dfAccept) {
 	str += `<p>Соответсвенно, порядок интегрирования <span class="math">k = ${k - 1}</span>.</p>`;
 	$('.df-inspection').after(str);
 }
+// 0.4166 0.2620,-0.0508
+
+var arima = [];
+for(let t = 0; t < leftover.length; t++) {
+	arima[t] = t > 2 ?
+	-0.0508 + 0.4166 * (leftover[t - 1] - leftover[t - 2]) - 0.2620 * (leftover[t - 2] - leftover[t - 3]) + leftover[t - 1] :
+	leftover[t];
+};
+// console.log(DATA_X.map(t => arima(lt)))
 
 drawPlot('leftover', [{x: DATA_X, y: leftover}]);
 drawPlot('ar_model', [{x: DATA_X, y: leftover}, {x: DATA_X, y: newLeftover}]);
+drawPlot('arima', [{x: DATA_X, y: leftover}, {x: DATA_X, y: arima}]);

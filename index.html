@@ -3,13 +3,13 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>First laboratory</title>
+	<title>Second laboratory</title>
 	<!-- <link rel="stylesheet" href="styles/reset.css"> -->
 	<link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
 	<header style="text-align: center">
-		<h1>Лабораторная работа №1</h1>
+		<h1>Лабораторная работа №2</h1>
 	</header>
 
 	<main>
@@ -19,7 +19,7 @@
 				<ol>
 					<li>1. Для полученной модели временного ряда из лабораторной работы 1 вычислить остатки.</li>
 					<li>2. Провести анализ временного ряда остатков на стационарность. В случае нестационарности определить порядок интегрирования <span class="math">(r)</span> временного ряда.</li>
-					<li>3. Построить <span class="math">ARMA(p,q,r)</span> модель по методики <i>Бокса-Дженкинса</i>.</li>
+					<li>3. Построить <span class="math">ARMA(p,q,r)</span> модель по методике <i>Бокса-Дженкинса</i>.</li>
 					<li>4. Провести анализ стационарности временного ряда полученных остатков.</li>
 				</ol>
 			</li>
@@ -40,23 +40,10 @@
 					</li>
 					<li>
 						<h3>3. Построение ARMA-модели</h3>
-						<p>Построим модель <span class="math">ARIMA(p, 1, q)</span>. Выбор в пользу той или иной модели будем делать на основе критерия Шварца (BIC) (для получения состоятельных оценок).</p>
-						<p>Строить модель будем при <span class="math">p, q ∈ [0,10)</span>. Построение модели будем осуществлять с помощью метода ARIMA(…).fit() библиотеки statsmodels.tsa языка Python. Данный метод находит неизвестные оценки <span class="math">α<sub>1</sub>, α<sub>2</sub>, … , α<sub>p</sub>, β<sub>1</sub>, β<sub>2</sub>, … , β<sub>q</sub></span> с помощью метода максимального правдоподобия при использовании фильтра Калмана.</p>
-						<p>Результаты построения модели для каждой пары значений <span class="math">p, q</span> представим в виде таблицы:</p>
-						<table>
-							<thead>
-								<tr>
-									<th class="math">(p, q)</th>
-									<th>BIC</th>
-									<th></th>
-									<th class="math">(p, q)</th>
-									<th>BIC</th>
-								</tr>
-							</thead>
-							<tbody>
-							</tbody>
-						</table>
-						<p>Таким образом получается модель <span class="math">ARIMA(1, 1, 0)</span> со следующим набором коэффициентов: <span class="math">α<sub>1</sub> = 0.3133, α<sub>2</sub> = 0.2973, α<sub>3</sub> = 0.2765</span>.</p>
+						<p>Построим модель <span class="math">ARIMA(p, 1, q)</span>. Выбор в пользу той или иной модели будем делать на основе критерия Шварца (BIC) для получения состоятельных оценок.</p>
+						<p>Выбор модели, построенной с помощью метода ARIMA(…).fit() библиотеки statsmodels.tsa языка Python (метод максимального правдоподобия при использовании фильтра Калмана), будем осуществлять по параметру BIC на множестве <span class="math">p, q ∈ [0,10)</span>. В результате перебора была отобрана модель с минимальным значением <span class="math">BIC = 560.67</span> и параметрами <span class="math">p = 2, q = 0</span>.</p>
+						<p>Таким образом получается модель <span class="math">ARIMA(2, 1, 0)</span> со следующим набором коэффициентов: <span class="math">α<sub>1</sub> = 0.4166, α<sub>2</sub> = 0.2620, const = -0.0508</span>.</p>
+						<div id="plot-arima" class="plot"></div>
 					</li>
 					<li>
 						<h3>4. Анализ стационарности временного ряда полученных остатков</h3>
