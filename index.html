@@ -35,8 +35,8 @@
 						<h3>2. Анализ стационарности временного ряда остатков</h3>
 						<p>Для анализа ряда остатков на стационарность в первую очередь построим модель авторегрессии AR(1): <span class="math">e(t) = θ<sub>1</sub> * e(t - 1) + u(t)</span>, где <span class="math">θ<sub>1</sub> = <span class="teta"></span></span>:</p>
 						<div id="plot-ar_model" class="plot"></div>
-						<p>Далее проверим гипотезу о стационарности с помощью критерия Дики-Фуллера. Если статистика <span class="math">t = (θ<sup>^</sup><sub>1</sub> - 1) / S<sub>θ<sup>^</sup><sub>1</sub></sub> < DF<sub>α</sub>(α, N)</span>, то гипотеза отвергается, что значит, что ряд - стационарен.</p>
-						<p class="df-inspection">Для данного ряда условие выглядит следующим образом: <span class="math df-condition"></span>. Гипотеза <strong class="df-accept"></strong>, ряд - <strong class="df-station"></strong>.</p>
+						<p>Далее проверим гипотезу о стационарности с помощью критерия Дики-Фуллера. Если статистика <span class="math">t = (θ<sup>^</sup><sub>1</sub> - 1) / S<sub>θ<sup>^</sup><sub>1</sub></sub> < DF<sub>α</sub>(α, N)</span>, то гипотеза отвергается, что значит, что ряд – стационарен.</p>
+						<p class="df-inspection">Для данного ряда условие выглядит следующим образом: <span class="math df-condition"></span>. Гипотеза <strong class="df-accept"></strong>, ряд – <strong class="df-station"></strong>.</p>
 					</li>
 					<li>
 						<h3>3. Построение ARMA-модели</h3>
@@ -47,10 +47,10 @@
 					</li>
 					<li>
 						<h3>4. Анализ стационарности временного ряда полученных остатков</h3>
-						<p>Проведем анализ стационарности временного ряда полученных остатков: <span class="math">t = -15.9791, DFкр(0,01; 258) = -3.4559, p-value: 0.0</span>. Полученный ряд остатков <strong>стационарен</strong>.</p>
+						<p>Проведем анализ стационарности временного ряда полученных остатков: <span class="math arima-df-condition"></span>. Гипотеза <strong class="arima-df-accept"></strong>, ряд – <strong class="arima-df-station"></strong>.</p>
+						<div id="plot-arima_df" class="plot"></div>
 						<p>Представим график оценки исходного временного ряда моделями до оценки случайной компоненты и после:</p>
-						<div class="plot"></div>
-						<p>Значения среднеквадратической ошибки до и после оценивания случайной компоненты соответственно: <span class="math">MSE = 27.1048, MSE = 0.1825</span>.</p>
+						<div id="plot-basic" class="plot"></div>
 					</li>
 				</ol>
 			</li>

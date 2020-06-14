@@ -7,10 +7,10 @@ const dispersion = DATA.reduce((acc, curr) => acc + Math.pow((curr - mathExpecta
 const quantile = -0.74;
 const chiSquaredAt095 = [0.00393, 0.103, 0.352, 0.711, 1.145, 1.635, 2.167, 2.733, 3.325, 3.940];
 
-var drawPlot = (name, data) => {
+var drawPlot = (name, data, caption) => {
 	var plot = document.getElementById('plot-' + name);
 	var layout = {
-		title: 'Plot of ' +  name,
+		title: caption ? caption : 'Plot of ' +  name,
 		margin: {
 			t: 30,
 			b: 20,
@@ -134,7 +134,7 @@ particialAutoCorrelation1 = (e) => {
 }
 
 if (!dfAccept) {
-	let k, accept = true, str = '<p>Далее необходимо перейти к поиску порядка интегрирования ряда остатков. Для этого воспользумеся критерием Бокса-Пирса для гипотезы об отсутствии автокорелляции до порядка <span class="math">p</span>.</p><p>Для проверки этой гипотезы используется статистика Бокса-Пирса, имеющая вид: <span class="math">Q = N * sum of (r<sup>2</sup>(j)) from j = 1 to p</span>. Гипотеза отвергается, если <span class="math">Q > χ<sup>2</sup><sub>кр</sub>(1 - α, p)</span>.</p>';
+	let k, accept = true, str = '<p>Далее необходимо перейти к поиску порядка интегрирования ряда остатков. Для этого воспользуемся критерием Бокса-Пирса для гипотезы об отсутствии автокорреляции до порядка <span class="math">p</span>.</p><p>Для проверки этой гипотезы используется статистика Бокса-Пирса, имеющая вид: <span class="math">Q = N * sum of (r<sup>2</sup>(j)) from j = 1 to p</span>. Гипотеза отвергается, если <span class="math">Q > χ<sup>2</sup><sub>кр</sub>(1 - α, p)</span>.</p>';
 	for(k = 0; k < 5 && accept; k++) {
 		let stat = statisticsBoxPierce(k, leftover);
 		let crit = chiSquaredAt095[k];
@@ -144,19 +144,40 @@ if (!dfAccept) {
 		str += `<p>Статистика Бокса-Пирса для <span class="math">k = ${k + 1}: ${stat.toFixed(4)}</span>. Критическое значение <span class="math">χ<sup>2</sup>(0.95, ${k + 1}) = ${crit}</span>.`;
 		str += ` Гипотеза об отсутствии автокорреляции до порядка p = <span class="math">${k + 1} ${acceptText}</span>.</p>`;
 	}
-	str += `<p>Соответсвенно, порядок интегрирования <span class="math">k = ${k - 1}</span>.</p>`;
+	str += `<p>Соответственно, порядок интегрирования <span class="math">k = ${k - 1}</span>.</p>`;
 	$('.df-inspection').after(str);
 }
-// 0.4166 0.2620,-0.0508
 
-var arima = [];
-for(let t = 0; t < leftover.length; t++) {
-	arima[t] = t > 2 ?
-	-0.0508 + 0.4166 * (leftover[t - 1] - leftover[t - 2]) - 0.2620 * (leftover[t - 2] - leftover[t - 3]) + leftover[t - 1] :
-	leftover[t];
-};
-// console.log(DATA_X.map(t => arima(lt)))
+{	// ARIMA building
+	// 0.4166 0.2620,-0.0508
+	var arima = [];
+	for(let t = 0; t < leftover.length; t++) {
+		arima[t] = t > 2 ?
+		-0.0508 + 0.4166 * (leftover[t - 1] - leftover[t - 2]) - 0.2620 * (leftover[t - 2] - leftover[t - 3]) + leftover[t - 1] :
+		leftover[t];
+	}
+}
 
-drawPlot('leftover', [{x: DATA_X, y: leftover}]);
-drawPlot('ar_model', [{x: DATA_X, y: leftover}, {x: DATA_X, y: newLeftover}]);
-drawPlot('arima', [{x: DATA_X, y: leftover}, {x: DATA_X, y: arima}]);
+{	// AR(1) model, DF condition
+	var arimaLeftover = arima.map((item, t) => leftover[t] - item);
+	var teta = optimjs.minimize_Powell(v => arimaLeftover.reduce((acc, cur, t) => t ? acc + Math.pow(v[0] * arimaLeftover[t - 1] - cur, 2) : cur), [.8]).argument[0];
+	var newArimaLeftover = arimaLeftover.map((item, t) => t ? arimaLeftover[t - 1] * teta : item);
+	// $('.teta').html(teta.toFixed(3));
+
+	let statisticsStudent = arimaLeftover[3] / 4 / Math.sqrt(arimaLeftover.reduce((acc, cur) => acc + Math.pow(cur, 2)) / arimaLeftover.length);
+	console.log(arima[0], Math.sqrt(arimaLeftover.reduce((acc, cur) => acc + Math.pow(cur, 2)) / arimaLeftover.length))
+	let stat = (teta - 1) / statisticsStudent;
+	let crit = -2.58;
+
+	var dfAccept = stat < crit;
+	let str = `t = ${stat.toFixed(4)} ${dfAccept ? '<' : '>'} DF<sub>α</sub>(α, N) = ${crit}`;
+	$('.arima-df-condition').html(str);
+	$('.arima-df-accept').html(dfAccept ? 'принимается' : 'отвергается');
+	$('.arima-df-station').html(dfAccept ? 'стационарен' : 'не стационарен');
+}
+
+drawPlot('leftover', [{x: DATA_X, y: leftover}], 'Ряд остатков');
+drawPlot('ar_model', [{x: DATA_X, y: leftover, name: 'Остатки'}, {x: DATA_X, y: newLeftover, name: 'AR(1)'}], 'AR(1) модель');
+drawPlot('arima', [{x: DATA_X, y: leftover, name: 'Остатки'}, {x: DATA_X, y: arima, name: 'ARIMA-модель'}], 'ARIMA-модель и ряд остатков');
+drawPlot('arima_df', [{x: DATA_X, y: arimaLeftover, name: 'Остатки после ARIMA-модели'}, {x: DATA_X, y: newArimaLeftover, name: 'AR(1) остатков после ARIMA-модели'}], 'Ряд остатков после ARIMA-модели');
+drawPlot('basic', [{x: DATA_X, y: DATA, name: 'Исходный ряд'}, {x: DATA_X, y: DATA.map((_, t) => trendFunction(t) + seasonFunction(t) + arima[t]), name: 'Итоговая модель'}, {x: DATA_X, y: DATA.map((_, t) => trendFunction(t) + seasonFunction(t)), name: 'Модель без ARIMA'}], 'Модель в терминах исходного ряда');
